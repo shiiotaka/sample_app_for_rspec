@@ -4,30 +4,35 @@ RSpec.describe Task, type: :model do
   # pending "add some examples to (or delete) #{__FILE__}"
   describe 'バリデーション' do
     it '全ての属性があれば有効な状態であること' do
-      expect(FactoryBot.build(:task)).to be_valid
+      task = build(:task)
+      expect(task).to be_valid
+      expect(task.errors).to be_empty
     end
 
     it 'タイトルがなければ無効な状態であること' do
-      task = FactoryBot.build(:task, title: nil)
-      task.valid?
-      expect(task.errors[:title]).to include("can't be blank")
+      task_without_title = build(:task, title: nil)
+      expect(task_without_title).to be_invalid
+      expect(task_without_title.errors[:title]).to eq ["can't be blank"]
     end
 
     it 'ステータスがなければ無効な状態であること' do
-      task = Task.new(status: nil)
-      task.valid?
-      expect(task.errors[:status]).to include("can't be blank")
+      task_without_status = build(:task, status: nil)
+      expect(task_without_status).to be_invalid
+      expect(task_without_status.errors[:status]).to eq ["can't be blank"]
     end
 
     it '重複したタイトルが無効な状態であること' do
-      FactoryBot.create(:task, title: 'title')
-      task = FactoryBot.build(:task, title: 'title')
-      task.valid?
-      expect(task.errors[:title]).to include('has already been taken')
+      task = create(:task)
+      task_with_duplicated_title = build(:task, title: task.title)
+      expect(task_with_duplicated_title).to be_invalid
+      expect(task_with_duplicated_title.errors[:title]).to eq ["has already been taken"]
     end
 
     it 'タイトルが重複してなければ有効な状態であること' do
-      FactoryBot.create(:task, title: 'title')
+      task = create(:task)
+      task_with_another_title = build(:task, title: 'another_title')
+      expect(task_with_another_title).to be_valid
+      expect(task_with_another_title.errors).to be_empty
     end
   end
 end
