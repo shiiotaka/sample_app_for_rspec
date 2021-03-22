@@ -7,8 +7,12 @@ RSpec.describe "UserSessions", type: :system do
     context 'フォームの入力値が正常' do
       it 'ログイン処理が成功する' do
         visit login_path
-        login(user)
+        fill_in 'Email', with: user.email
+        fill_in 'Password', with: 'password'
+        click_button 'Login'
+
         expect(page).to have_content 'Login successful'
+        expect(current_path).to eq root_path
       end
     end
 
@@ -19,8 +23,8 @@ RSpec.describe "UserSessions", type: :system do
         fill_in 'password', with: nil
         click_button 'Login'
 
-        expect(current_path).to eq login_path
         expect(page).to have_content "Login failed"
+        expect(current_path).to eq login_path
       end
     end
   end
@@ -28,14 +32,12 @@ RSpec.describe "UserSessions", type: :system do
   describe 'ログイン後' do
     context 'ログアウトボタンをクリック' do
       it 'ログアウト処理が成功する' do
-        visit login_path
-        login(user)
-        click_on 'Logout'
-        expect(current_path).to eq root_path
+        login_as(user)
+        click_link 'Logout'
         expect(page).to have_content "Logged out"
+        expect(current_path).to eq root_path
       end
     end
   end
-
   # pending "add some scenarios (or delete) #{__FILE__}"
 end
